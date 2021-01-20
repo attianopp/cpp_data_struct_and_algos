@@ -1,0 +1,108 @@
+Attiano Purpura-Pontoniere
+CS 32 Project 3 Report:
+
+
+A) The design of my data structures was simple: I used a vector of vectors to represent the board
+	To record shots made I also used a vector
+	To record future shots to hit after hitting a ship I used a stack as its a simple structure to understand
+	To record information about ships in game I used vectors for each piece of information about a ship
+	To take advantage of parity my goodplayer has a vector of vectors just like a board
+	
+B) Please dont take penalize me if my prose description is too low-level, and similarly if my psuedo-code isnt pusedo-enough-y
+   this is basically my second time exposed to writing pusedocode, please just let me know how I can improve and I will try to do so
+
+
+GOODPLAYER::PLACESHIPS :
+	Good player places ships exactly the same as mediocre player. It tries to place all the ships 50 times by blocking half the board,
+	then calling a recurisve helper function to place ships that systematically checks every point to see if it can place the ship either horizontally or vertically.
+	And if it can place the ship then it recursively tries to place the rest of the ships, then it unblocks the board.
+	And if the placeships helper function failed to place all the ships, it tries the whole process again.
+
+	
+GOODPLAYER::ATTACK ALGORITHIM:
+	Good player essentially hunts for a ship systematically checking every other point, until it find a ship and then destroys it as quickly as possible
+	
+	Good player recordAttack() updates the state based on whether or not a ship was hit
+	it also records the largest ship size destroyed, and if the patrol boat was destroyed it updates goodplayer's private vector of vectors (Board object) to only seek every third point on the board to take advantage of the fact that each ship then is at least size 3
+	
+	Good player has 3 attack states that it consults to recommend an attack
+		state 1: It is hunting for a ship, so it systematically attacks every other point on the board (all ships are at least size 2) until it hits a ship, or if it attacked every other point on the board it chooses a random point it hasnt already checked
+		State 2: It made its first hit against a ship, so it knows the ship must lie largest_ship_size -1 either north, south, east, or west of the original hit, and it loads all those points onto a stack and returns the closest points to the hit first until it hits a second time, and if it's stack runs out (Attacked all points largest_ship_size in each direction) it returns a random unchecked point
+		State 3: It has now registered a second hit against a ship, so it knows either the ship is placed in that horizontal/vertical direction, or it hit another ship placed right next to the first ship hit
+				state 3 then loads all the points onto a stack in horizontal/vertical direction probed and seeks out those points first
+				if those points dont destroy anything, it reverts back to state 2's points as those points must contain the rest of the ship
+				if state 2's points are fully exhausted it returns a random unchecked point
+				(It doesnt take advantage of the fact that it found two ships if state 3's stack was emptied without destroying a ship)
+				
+		if it's in state 1 and it registers a hit but doesnt destroy a ship, it goes to state 2
+		if its in state 2 and registers a hit but doesnt destroy a ship, it goes to state 3
+		if its not a valid shot it stays in the state it was in
+		if the shot didnt hit it stays in the state its in
+		if its in any state and it destroys a ship it goes to state 1
+
+
+
+C) NON TRIVIAL ALGORITHIMS ARE GOOD/MEDIOCREPLAYER::PLACESHIPS and GOODPLAYER::ATTACK ALGORITHIM and MEDIOCREPLAYER::ATTACK ALGORITHM
+
+MEDIOCRE/GOODPLAYER::PLACESHIPS PSUEDOCODE:
+
+While youve tried placing ships less than 50 times:
+	block half the board
+	try to place ships recursively:
+		if there are no ships left to place return true
+		for each point on the board:
+			Try to place the first ship horizontally
+				if that works try to place the rest of the ships recursively
+				otherwise unplace the first ship
+			Try to place the first ship vertically
+				if that works try to place the rest of the ships recursively
+				otherwise unplace the first ship and try the next point
+		if cant place first ship anywhere, return false
+
+
+
+MEDIOCREPLAYER::ATTACK ALGORITHM PSUEDOCODE:
+
+Start off in state 1
+IF the shot was valid and hit but didnt destroy a ship, go to state 2
+If the shot was valid and hit and destroyed a ship, go to state 1
+If the shot was valid but didnt hit, stay in the state you're in
+
+If you are in state 1:
+	Return a random point on the board that hasnt already been checked
+
+IF you are in state 2:
+	Record all valid points up to and including 4 points in each direction from the location of the hit
+	return a unique unchecked point from the list (or other data strucutre) of points recorded 
+	if there are no more unchecked points to return, return a random unchecked point and go to state 1
+			
+
+GOODPLAYER::ATTACK ALGORITHM PSUEDOCODE:
+
+Start off in state 1
+IF the shot was valid and hit but didnt destroy a ship, go to state 2
+IF the shot was valid and hit but didnt destroy a ship and you are in state 2, go to state 3
+If the shot was valid and hit and destroyed a ship, go to state 1
+If the shot was valid and hit and destroyed a ship, and the ship size was 2, update the player's private vector-of-vectors (Board) object to reflect parity for every third point instead of every other point
+If the shot was valid and hit and destroyed a ship, and the ship size was 5, the largest ship size left is 4 (only applicable to standard battleship)
+If the shot was valid and hit and destroyed a ship, and the ship size was 4, and the largest ship size left is 4, the largest ship size left is now 3 (only applicable to standard battleship)
+If the shot was valid but didnt hit, stay in the state you're in
+
+("parity points" are either every other, or every third point on the board based on whether or not the patrol boat is destroyed)
+
+If you are in state 1:
+	Empty old data containers if you came to state 1 from a state that updated data containers (2&3)
+	Systematically return every "parity point" left unchecked point on the board (either every other point or every third point)
+	If there are no more "parity" points left unchecked on the board, return a random point
+
+If you are in state 2:
+	Record all valid points that are up to the largest ship size left in each direction from the location of the hit
+	return a unique unchecked point from the list (or other data strucutre) of points recorded in state 2
+	if there are no more unchecked points to return, return a random unchecked point and go to state 1
+
+If you are in state 3:
+	If the second hit after state 2 is in the horizontal direction, record all valid points up to the largest ship size left in only the horizontal directions from the location of the first hit
+	If the second hit after state 2 is in the vertical direction, record all valid points up to the largest ship size left in only the vertical directions from the location of the first hit
+	return a unique unchecked point from the list (or other data strucutre) of points recorded in state 3
+	if there are no more unchecked points to return from state 3, return an unchecked point from state 2 and go to state 2
+	if there are no more unchecked points to return from state 2, return a random unchecked point and go to state 1
