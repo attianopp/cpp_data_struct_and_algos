@@ -1,7 +1,7 @@
 # cpp_data_struct_and_algos
 
-Homework 1: implemented a set data structure from scratch \n
-Homework 2: implemented a maze solving algorithm using a stack first and then a queue \n
+Homework 1: implemented a set data structure from scratch
+Homework 2: implemented a maze solving algorithm using a stack first and then a queue
 Homework 3: implemented various recursive functions
 Homework 4: implemented sorting algorithms, template functions, copy constructors/operator overloading, and became familiarized with data structures from STL library
 
