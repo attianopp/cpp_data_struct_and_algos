@@ -13,7 +13,7 @@ Project 1: implemented various classes for a object oriented game
 
 Project 2: implemented a circular doubly linked list from scratch
 
-Project 3: HAS THE battleship.exe FILE IF YOU WANT TO PLAY THE FINISHED PROJECT
+Project 3: created a battleship game from a skeleton. HAS THE battleship.exe FILE IF YOU WANT TO PLAY THE FINISHED PROJECT
 
             implemented a battleship videogame for windows that has a console based GUI
             
